@@ -1,0 +1,48 @@
+version: "3.7"
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: api
+    container_name: api-app
+    restart: always
+    ports:
+      - 3000:3000
+    working_dir: /usr/src/app/
+    volumes:
+      - ./:/usr/src/app/
+    networks:
+      - api
+
+# Database
+  mongo:
+    image: mongo
+    container_name: mongo-db
+    restart: always
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_DATABASE: my_db
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - 27017-27019:27017-27019
+    networks:
+      - api
+
+# GUI Database
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: pass
+      ME_CONFIG_MONGODB_SERVER: mongo
+    networks:
+      - api
+
+networks:
+  api:
+    driver: bridge
